@@ -2,7 +2,7 @@ import pygame
 import random
 
 pygame.init()
-pygame.display.set_caption('Ssssnake 🐍')
+pygame.display.set_caption('Sicuri 🐍')
 width, height = 1080, 720
 display = pygame.display.set_mode((width, height))
 clock = pygame.time.Clock()
@@ -31,6 +31,29 @@ def draw_snake(size, snake_pixels):
         pygame.draw.rect(display, color_white, [pixel[0], pixel[1], size, size])
 
 
+def draw_score(score):
+    font = pygame.font.SysFont("Inter", 50)
+    text = font.render(f"Pontos: {score}", True, color_green)
+    display.blit(text, [4, 4])
+
+
+def select_speed(key):
+    if key == pygame.K_DOWN:
+        speed_x = 0
+        speed_y = square_size
+    if key == pygame.K_UP:
+        speed_x = 0
+        speed_y = -square_size
+    if key == pygame.K_RIGHT:
+        speed_x = square_size
+        speed_y = 0
+    if key == pygame.K_LEFT:
+        speed_x = -square_size
+        speed_y = 0
+
+    return speed_x, speed_y
+
+
 def run_game():
     end_game = False
 
@@ -51,8 +74,18 @@ def run_game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 end_game = True
+            elif event.type == pygame.KEYDOWN:
+                x_speed, y_speed = select_speed(event.key)
 
         draw_food(square_size, food_x, food_y)
+
+        if x < 0 or x >= width or y < 0 or y >= height:
+            end_game: True
+
+        draw_score(snake_size - 1)
+
+        x += x_speed
+        y += y_speed
 
         snake_pixels.append([x, y])
         if len(snake_pixels) > snake_size:
@@ -65,6 +98,11 @@ def run_game():
         draw_snake(square_size, snake_pixels)
 
         pygame.display.update()
+
+        if x == food_x and y == food_y:
+            snake_size += 1
+            food_x, food_y = generate_food()
+
         clock.tick(game_speed)
 
 
